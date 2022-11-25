@@ -8,3 +8,5 @@ This repo is an implementation of Sentry's [User Feedback API](https://docs.sent
    - To obtain a DSN string, create a Sentry account at [sentry.io/signup](https://sentry.io/signup/) if you haven't already
    - Create a new Android project
    - Scroll down to the "Connecting the SDK to Sentry" section, you should see your project's DSN in the second line of the code block
+3. Sync your project with the Gradle files
+4. Run the app
