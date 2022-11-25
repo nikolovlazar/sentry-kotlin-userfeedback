@@ -27,139 +27,147 @@ import io.sentry.protocol.SentryId
 @Preview
 @Composable
 fun ReportBug(
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    navController: NavController = rememberNavController(),
-    eventId: String? = ""
+  navController: NavController = rememberNavController(),
+  eventId: String? = ""
 ) {
-    val context = LocalContext.current
-    var titleState by remember { mutableStateOf("") }
-    var whatHappenedState by remember { mutableStateOf("") }
-    var whatShouldveHappenedState by remember { mutableStateOf("") }
-    var nameState by remember { mutableStateOf("") }
-    var emailState by remember { mutableStateOf("") }
+  // create local variables for context and form fields
+  val context = LocalContext.current
+  var titleState by remember { mutableStateOf("") }
+  var whatHappenedState by remember { mutableStateOf("") }
+  var whatShouldveHappenedState by remember { mutableStateOf("") }
+  var nameState by remember { mutableStateOf("") }
+  var emailState by remember { mutableStateOf("") }
 
-    if (eventId == null) {
-        return
-    }
+  // if the eventId is null, pop back to the previous screen
+  if (eventId == null) {
+    navController.popBackStack()
+    return
+  }
 
-    val sendFeedback: () -> Unit = {
-        val userFeedback = UserFeedback(SentryId(eventId)).apply {
-            name = nameState
-            email = emailState
-            comments = """Title: $titleState
+  val sendFeedback: () -> Unit = {
+    // create a new UserFeedback instance using the eventId and form data
+    val userFeedback = UserFeedback(SentryId(eventId)).apply {
+      name = nameState
+      email = emailState
+      // concatenate some of the fields in the comments property
+      comments = """Title: $titleState
 ==============================================
 What Happened: $whatHappenedState
 ==============================================
 What Should've Happened: $whatShouldveHappenedState"""
-        }
-        Sentry.captureUserFeedback(userFeedback)
-
-        Toast.makeText(
-            context,
-            "Feedback sent. Thank you \uD83D\uDC96",
-            Toast.LENGTH_LONG
-        ).show()
-        navController.popBackStack()
     }
+    // send the feedback to Sentry
+    Sentry.captureUserFeedback(userFeedback)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Go back"
-                        )
-                    }
-                },
-                title = {
-                    Text(text = "Report a bug")
-                },
+    // show a confirmational toast
+    Toast.makeText(
+      context,
+      "Feedback sent. Thank you \uD83D\uDC96",
+      Toast.LENGTH_LONG
+    ).show()
+
+    // pop back to the previous screen
+    navController.popBackStack()
+  }
+
+  Scaffold(
+    topBar = {
+      TopAppBar(
+        navigationIcon = {
+          IconButton(onClick = {
+            navController.popBackStack()
+          }) {
+            Icon(
+              Icons.Default.ArrowBack,
+              contentDescription = "Go back"
             )
+          }
         },
-        content = { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                CustomTextField(
-                    value = titleState,
-                    onValueChange = { value -> titleState = value },
-                    placeholder = "Title",
-                )
-                CustomTextField(
-                    value = whatHappenedState,
-                    onValueChange = { value -> whatHappenedState = value },
-                    placeholder = "What happened?",
-                    maxLines = 5,
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .height(120.dp)
-                )
-                CustomTextField(
-                    value = whatShouldveHappenedState,
-                    onValueChange = { value -> whatShouldveHappenedState = value },
-                    placeholder = "What should've happened?",
-                    maxLines = 5,
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                        .height(120.dp)
-                )
-                CustomTextField(
-                    value = nameState,
-                    onValueChange = { value -> nameState = value },
-                    placeholder = "Name",
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                )
-                CustomTextField(
-                    value = emailState,
-                    onValueChange = { value -> emailState = value },
-                    placeholder = "Email",
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                    ),
-                    modifier = Modifier
-                        .padding(top = 16.dp)
-                )
-                Button(
-                    onClick = sendFeedback,
-                    modifier = Modifier.padding(top = 16.dp)
-                ) {
-                    Text("Send")
-                }
-            }
+        title = {
+          Text(text = "Report a bug")
+        },
+      )
+    },
+    content = { innerPadding ->
+      Column(
+        modifier = Modifier
+          .padding(innerPadding)
+          .padding(top = 16.dp)
+          .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+      ) {
+        CustomTextField(
+          value = titleState,
+          onValueChange = { value -> titleState = value },
+          placeholder = "Title",
+        )
+        CustomTextField(
+          value = whatHappenedState,
+          onValueChange = { value -> whatHappenedState = value },
+          placeholder = "What happened?",
+          maxLines = 5,
+          modifier = Modifier
+            .padding(top = 16.dp)
+            .height(120.dp)
+        )
+        CustomTextField(
+          value = whatShouldveHappenedState,
+          onValueChange = { value -> whatShouldveHappenedState = value },
+          placeholder = "What should've happened?",
+          maxLines = 5,
+          modifier = Modifier
+            .padding(top = 16.dp)
+            .height(120.dp)
+        )
+        CustomTextField(
+          value = nameState,
+          onValueChange = { value -> nameState = value },
+          placeholder = "Name",
+          modifier = Modifier
+            .padding(top = 16.dp)
+        )
+        CustomTextField(
+          value = emailState,
+          onValueChange = { value -> emailState = value },
+          placeholder = "Email",
+          keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Email,
+          ),
+          modifier = Modifier
+            .padding(top = 16.dp)
+        )
+        Button(
+          onClick = sendFeedback,
+          modifier = Modifier.padding(top = 16.dp)
+        ) {
+          Text("Send")
         }
-    )
+      }
+    }
+  )
 }
 
 @Composable
 fun CustomTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(),
-    maxLines: Int = 1,
+  value: String,
+  onValueChange: (String) -> Unit,
+  placeholder: String,
+  modifier: Modifier = Modifier,
+  keyboardOptions: KeyboardOptions = KeyboardOptions(),
+  maxLines: Int = 1,
 ) {
-    TextField(
-        value = value,
-        onValueChange = { newValue -> onValueChange(newValue) },
-        placeholder = { Text(placeholder) },
-        maxLines = maxLines,
-        keyboardOptions = keyboardOptions,
-        shape = RoundedCornerShape(16.dp),
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = Color(0, 0, 0, 15),
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-        ),
-        modifier = modifier
-    )
+  TextField(
+    value = value,
+    onValueChange = { newValue -> onValueChange(newValue) },
+    placeholder = { Text(placeholder) },
+    maxLines = maxLines,
+    keyboardOptions = keyboardOptions,
+    shape = RoundedCornerShape(16.dp),
+    colors = TextFieldDefaults.textFieldColors(
+      backgroundColor = Color(0, 0, 0, 15),
+      focusedIndicatorColor = Color.Transparent,
+      unfocusedIndicatorColor = Color.Transparent,
+    ),
+    modifier = modifier
+  )
 }

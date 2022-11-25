@@ -23,93 +23,112 @@ import io.sentry.Sentry
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            val navController = rememberNavController()
-            val snackbarHostState = remember { SnackbarHostState() }
-            SentryUserFeedbackTheme {
-                NavHost(navController = navController, startDestination = "main") {
-                    composable("main") {
-                        Scaffold(
-                            snackbarHost = { SnackbarHost(snackbarHostState) },
-                            content = { innerPadding ->
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(innerPadding),
-                                    color = MaterialTheme.colors.background
-                                ) {
-                                    TriggerError(snackbarHostState, navController)
-                                }
-                            }
-                        )
-                    }
-                    composable("reportBug/{eventId}") { backStackEntry ->
-                        ReportBug(
-                            snackbarHostState,
-                            navController,
-                            backStackEntry.arguments?.getString("eventId")
-                        )
-                    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContent {
+      // create the navController and snackbarHostState
+      val navController = rememberNavController()
+      val snackbarHostState = remember { SnackbarHostState() }
+      SentryUserFeedbackTheme {
+        // add a NavHost as the root component and assign the navController
+        NavHost(navController = navController, startDestination = "main") {
+          // create a route for the main screen
+          composable("main") {
+            // wrap the main component with a Scaffold and assign the snackbarHost
+            // the Scaffold is required in order to display the Snackbar
+            Scaffold(
+              snackbarHost = { SnackbarHost(snackbarHostState) },
+              content = { innerPadding ->
+                Surface(
+                  modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                  color = MaterialTheme.colors.background
+                ) {
+                  // render the main screen component
+                  // and pass the snackbarHostState and navController
+                  TriggerError(snackbarHostState, navController)
                 }
-            }
+              }
+            )
+          }
+          // create a route for the Report a Bug screen
+          // the User Feedback API requires the eventId of the last reported exception
+          // so we'll add the eventId as part of the route
+          composable("reportBug/{eventId}") { backStackEntry ->
+            // render the ReportBug component
+            // and pass the navController and the eventId from the args
+            ReportBug(
+              navController,
+              backStackEntry.arguments?.getString("eventId")
+            )
+          }
         }
+      }
     }
+  }
 }
 
+// define the main screen component
 @Composable
-fun TriggerError(snackbarHostState: SnackbarHostState, navController: NavController) {
-    val coroutineScope = rememberCoroutineScope()
-    val onClick: () -> Unit = {
-        try {
-            // faulty method
-            throw Exception("CRASH")
-        } catch (e: Exception) {
-            val eventId = Sentry.captureException(e)
-            coroutineScope.launch {
-                val snackbarResult = snackbarHostState.showSnackbar(
-                    message = "Oh no \uD83D\uDE27",
-                    actionLabel = "Report this!"
-                )
-                when (snackbarResult) {
-                    SnackbarResult.Dismissed -> {}
-                    SnackbarResult.ActionPerformed -> {
-                        // Navigate to new screen
-                        navController.navigate("reportBug/$eventId")
-                    }
-                }
-            }
+fun TriggerError(
+  snackbarHostState: SnackbarHostState,
+  navController: NavController
+) {
+  // to display the snackbar in a method we need to create a coroutine scope
+  val coroutineScope = rememberCoroutineScope()
+  val onClick: () -> Unit = {
+    try {
+      // faulty method
+      throw Exception("CRASH")
+    } catch (e: Exception) {
+      // report the exception to Sentry and obtain the eventId
+      val eventId = Sentry.captureException(e)
+      coroutineScope.launch {
+        // launch the snackbar
+        val snackbarResult = snackbarHostState.showSnackbar(
+          message = "Oh no \uD83D\uDE27",
+          actionLabel = "Report this!"
+        )
+        when (snackbarResult) {
+          SnackbarResult.Dismissed -> {}
+          SnackbarResult.ActionPerformed -> {
+            // navigate to the Report a Bug screen
+            // use the exception's eventId as part of the route
+            navController.navigate("reportBug/$eventId")
+          }
         }
+      }
     }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Button(onClick = onClick) {
-            Text("Unleash chaos!")
-        }
+  }
+  Column(
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+  ) {
+    Button(onClick = onClick) {
+      Text("Unleash chaos!")
     }
+  }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    SentryUserFeedbackTheme {
-        val snackbarHostState = remember { SnackbarHostState() }
-        val navController = rememberNavController()
-        Scaffold(
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            content = { innerPadding ->
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    color = MaterialTheme.colors.background
-                ) {
-                    TriggerError(snackbarHostState, navController)
-                }
-            }
-        )
-    }
+  SentryUserFeedbackTheme {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val navController = rememberNavController()
+    Scaffold(
+      snackbarHost = { SnackbarHost(snackbarHostState) },
+      content = { innerPadding ->
+        Surface(
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding),
+          color = MaterialTheme.colors.background
+        ) {
+          TriggerError(snackbarHostState, navController)
+        }
+      }
+    )
+  }
 }
