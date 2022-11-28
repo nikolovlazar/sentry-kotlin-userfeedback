@@ -1,13 +1,8 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
+// TODO: Add Sentry's Android Plugin
 
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id "io.sentry.android.gradle" version "3.3.0"
 }
 
 android {

@@ -19,7 +19,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nikolovlazar.sentryuserfeedback.ui.theme.SentryUserFeedbackTheme
-import io.sentry.Sentry
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -83,7 +82,7 @@ fun TriggerError(
       throw Exception("CRASH")
     } catch (e: Exception) {
       // report the exception to Sentry and obtain the eventId
-      val eventId = Sentry.captureException(e)
+      // TODO: Report exception to Sentry and obtain eventId
       coroutineScope.launch {
         // launch the snackbar
         val snackbarResult = snackbarHostState.showSnackbar(
@@ -95,7 +94,7 @@ fun TriggerError(
           SnackbarResult.ActionPerformed -> {
             // navigate to the Report a Bug screen
             // use the exception's eventId as part of the route
-            navController.navigate("reportBug/$eventId")
+            // TODO: Navigate to ReportBug screen with the eventId included
           }
         }
       }

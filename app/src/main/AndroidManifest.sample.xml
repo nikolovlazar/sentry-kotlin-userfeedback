@@ -28,23 +28,14 @@
                 android:value="" />
         </activity>
 
-        <meta-data
-            android:name="io.sentry.dsn"
-            android:value="[DSN_STRING]" />
-        <!-- Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-           We recommend adjusting this value in production. -->
-        <meta-data
-            android:name="io.sentry.traces.sample-rate"
-            android:value="1.0" />
-        <meta-data
-            android:name="io.sentry.traces.profiling.sample-rate"
-            android:value="1.0" />
-        <meta-data
-            android:name="io.sentry.traces.user-interaction.enable"
-            android:value="true" />
-        <meta-data
-            android:name="io.sentry.attach-screenshot"
-            android:value="true" />
+        <!--
+        TODO: Add the Sentry config:
+            - io.sentry.dsn
+            - io.sentry.traces.sample-rate
+            - io.sentry.traces.profiling.sample-rate
+            - io.sentry.traces.user-interaction.enable
+            - io.sentry.attach-screenshot
+        -->
     </application>
 
 </manifest>

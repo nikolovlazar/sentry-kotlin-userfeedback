@@ -20,9 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import io.sentry.Sentry
-import io.sentry.UserFeedback
-import io.sentry.protocol.SentryId
 
 @Preview
 @Composable
@@ -45,19 +42,8 @@ fun ReportBug(
   }
 
   val sendFeedback: () -> Unit = {
-    // create a new UserFeedback instance using the eventId and form data
-    val userFeedback = UserFeedback(SentryId(eventId)).apply {
-      name = nameState
-      email = emailState
-      // concatenate some of the fields in the comments property
-      comments = """Title: $titleState
-==============================================
-What Happened: $whatHappenedState
-==============================================
-What Should've Happened: $whatShouldveHappenedState"""
-    }
-    // send the feedback to Sentry
-    Sentry.captureUserFeedback(userFeedback)
+    // TODO: Create a new UserFeedback instance using the eventId and form data
+    // TODO: Send the feedback to Sentry
 
     // show a confirmational toast
     Toast.makeText(
