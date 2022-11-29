@@ -94,7 +94,8 @@ fun TriggerError(
           SnackbarResult.ActionPerformed -> {
             // navigate to the Report a Bug screen
             // use the exception's eventId as part of the route
-            // TODO: Navigate to ReportBug screen with the eventId included
+            // TODO: Replace eventId with the real eventId
+            navController.navigate("reportBug/eventId")
           }
         }
       }
